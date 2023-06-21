@@ -385,22 +385,22 @@ public class Board
         if (color == Piece.BLACK)
         {
             // Check if in bounds
-            if (0 <= col - 1)
+            if (0 <= col - 1 && row < Board.ROWS - 1)
                 pieceToLeftDiagonal = this.getCell(row + 1, col - 1).getPiece();
             
             // Check if in bounds
-            if (col + 1 < Board.COLS)
+            if (col + 1 < Board.COLS && row < Board.ROWS - 1)
                 pieceToRightDiagonal = this.getCell(row + 1, col + 1).getPiece();
         }
 
         else       
         {
             // Check if in bounds
-            if (0 <= col - 1)
+            if (0 <= col - 1 && 1 < row)
                 pieceToLeftDiagonal = this.getCell(row - 1, col - 1).getPiece();
 
             // Check if in bounds
-            if (col + 1 < Board.COLS)
+            if (col + 1 < Board.COLS && 1 < row)
                 pieceToRightDiagonal = this.getCell(row - 1, col + 1).getPiece();
         }
 
