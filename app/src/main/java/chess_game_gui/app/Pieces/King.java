@@ -6,6 +6,8 @@ import chess_game_gui.app.MainComponents.Piece;
 
 public class King extends Piece
 {
+    private static int bottomColor; // Used to determine which side to check for the castle
+
     private boolean hasMoved = false;
     private boolean hasJustShortCasteled = false;
     private boolean hasJustLongCasteled = false;
@@ -26,29 +28,30 @@ public class King extends Piece
         int kingColor = start.getPiece().getColor();
 
         // - Short castle
-        if (startCol - endCol == 2)
+        if (startCol - endCol == 2 * bottomColor)
         {
             // If king moved, can't castle
             if (hasMoved)
                 return false;
             
             // Can't castle if there's a piece in the way
-            if (board.getCell(startRow, startCol - 1).getPiece() != null || end.getPiece() != null)
+            if (board.getCell(startRow, startCol - bottomColor).getPiece() != null ||
+                end.getPiece() != null)
                 return false;
 
             // Can't castle if in check, passing through or landing on attacked cell
             if (board.isCellAttackedByColor(start, kingColor ^ Piece.BLACK) ||
-                board.isCellAttackedByColor(board.getCell(startRow, startCol - 1), kingColor ^ Piece.BLACK) ||
+                board.isCellAttackedByColor(board.getCell(startRow, startCol - bottomColor), kingColor ^ Piece.BLACK) ||
                 board.isCellAttackedByColor(end, kingColor ^ Piece.BLACK))
                 return false;
             
             // Check if theres a rook in place
-            Piece castlingRook = board.getCell(startRow, startCol - 3).getPiece();
+            Piece castlingRook = board.getCell(startRow, startCol - 3 * bottomColor).getPiece();
             if (!(castlingRook instanceof Rook))
                 return false;
             
             // Check if the rook is of correct color
-            if ((castlingRook).getColor() != kingColor)
+            if (castlingRook.getColor() != kingColor)
                 return false;
             
             // Check if rook has moved
@@ -60,29 +63,30 @@ public class King extends Piece
         }
 
         // - Long castle
-        if (endCol - startCol == 2)
+        if (endCol - startCol == 2 * bottomColor)
         {
             // If king moved, can't castle
             if (hasMoved)
                 return false;
             
             // Can't castle if there's a piece in the way
-            if (board.getCell(startRow, startCol + 1).getPiece() != null || end.getPiece() != null || board.getCell(startRow, startCol + 3).getPiece() != null)
+            if (board.getCell(startRow, startCol + bottomColor).getPiece() != null ||
+                end.getPiece() != null)
                 return false;
 
             // Can't castle if in check, passing through or landing on attacked cell
             if (board.isCellAttackedByColor(start, kingColor ^ Piece.BLACK) ||
-                board.isCellAttackedByColor(board.getCell(startRow, startCol + 1), kingColor ^ Piece.BLACK) ||
+                board.isCellAttackedByColor(board.getCell(startRow, startCol + bottomColor), kingColor ^ Piece.BLACK) ||
                 board.isCellAttackedByColor(end, kingColor ^ Piece.BLACK))
                 return false;
                 
             // Check if theres a rook in place
-            Piece castlingRook = board.getCell(startRow, startCol + 4).getPiece();
+            Piece castlingRook = board.getCell(startRow, startCol + 4 * bottomColor).getPiece();
             if (!(castlingRook instanceof Rook))
                 return false;
             
             // Check if the rook is of correct color
-            if ((castlingRook).getColor() != kingColor)
+            if (castlingRook.getColor() != kingColor)
                 return false;
             
             // Check if rook has moved
@@ -178,5 +182,15 @@ public class King extends Piece
      */
     public void setHasJustLongCasteled(boolean hasJustLongCasteled) {
         this.hasJustLongCasteled = hasJustLongCasteled;
+    }
+
+    public static int getColorOnBottom()
+    {
+        return bottomColor;
+    }
+
+    public static void setColorOnBottom(int color)
+    {
+        bottomColor = color;
     }
 }
