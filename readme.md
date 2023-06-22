@@ -9,10 +9,20 @@ Must have JDK installed.
 
 To run the game, open a terminal and follow the steps below:
 
+Windows:
 ```bash
 git clone https://github.com/natitati4/chess_game_gui.git
 cd chess_game_gui
 gradlew build
+java -jar app/build/libs/app.jar
+```
+
+Linux:
+```bash
+git clone https://github.com/natitati4/chess_game_gui.git
+cd chess_game_gui
+chmod u+x gradlew
+./gradlew build
 java -jar app/build/libs/app.jar
 ```
 
