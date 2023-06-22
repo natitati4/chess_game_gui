@@ -14,7 +14,7 @@ public class Board
     private Cell board[][];
     private Move lastMove = new Move();
 
-    public Board()
+    public Board(boolean isWhiteOnBottom)
     {
         this.board = new Cell[ROWS][COLS];
         
@@ -22,8 +22,8 @@ public class Board
         board[0][0] = new Cell(0, 0, new Rook(Piece.WHITE));
         board[0][1] = new Cell(0, 1, new Knight(Piece.WHITE));
         board[0][2] = new Cell(0, 2, new Bishop(Piece.WHITE));
-        board[0][3] = new Cell(0, 3, new King(Piece.WHITE));
-        board[0][4] = new Cell(0, 4, new Queen(Piece.WHITE));
+        board[0][3] = isWhiteOnBottom ? new Cell(0, 3, new Queen(Piece.WHITE)) : new Cell(0, 3, new King(Piece.WHITE)); // Switch king and queen based on
+        board[0][4] = isWhiteOnBottom ? new Cell(0, 4, new King(Piece.WHITE)) : new Cell(0, 4, new Queen(Piece.WHITE)); // which color is at the bottom
         board[0][5] = new Cell(0, 5, new Bishop(Piece.WHITE));
         board[0][6] = new Cell(0, 6, new Knight(Piece.WHITE));
         board[0][7] = new Cell(0, 7, new Rook(Piece.WHITE));
@@ -32,8 +32,8 @@ public class Board
         board[7][0] = new Cell(7, 0, new Rook(Piece.BLACK));
         board[7][1] = new Cell(7, 1, new Knight(Piece.BLACK));
         board[7][2] = new Cell(7, 2, new Bishop(Piece.BLACK));
-        board[7][3] = new Cell(7, 3, new King(Piece.BLACK));
-        board[7][4] = new Cell(7, 4, new Queen(Piece.BLACK));
+        board[7][3] = isWhiteOnBottom ? new Cell(7, 3, new Queen(Piece.BLACK)) : new Cell(7, 3, new King(Piece.BLACK)); // Switch king and queen based on
+        board[7][4] = isWhiteOnBottom ? new Cell(7, 4, new King(Piece.BLACK)) : new Cell(7, 4, new Queen(Piece.BLACK)); // which color is at the bottom
         board[7][5] = new Cell(7, 5, new Bishop(Piece.BLACK));
         board[7][6] = new Cell(7, 6, new Knight(Piece.BLACK));
         board[7][7] = new Cell(7, 7, new Rook(Piece.BLACK));
@@ -162,7 +162,8 @@ public class Board
         return checkRooksAndQueensAttacks(row, col, color) ||
                 checkKnightsAttacks(row, col, color) ||
                 checkBishopsAndQueensAttacks(row, col, color) ||
-                checkPawnsAttacks(row, col, color);
+                checkPawnsAttacks(row, col, color) ||
+                checkKingAttacks(row, col, color);
     }
 
     private Cell getKingCell(int color)
@@ -253,32 +254,6 @@ public class Board
         }
 
         // If didn't return true, not rooks checking
-        return false;
-    }
-
-    // If knight of the given color attacks the given square
-    private boolean checkKnightsAttacks(int row, int col, int color)
-    {
-        // All possible knight positions that can attack the square
-        int knightCells[][] = {{row - 1, col - 2}, {row - 1, col + 2},
-                                {row + 1, col - 2}, {row + 1, col + 2},
-                                {row - 2, col - 1}, {row - 2, col + 1},
-                                {row + 2, col - 1}, {row + 2, col + 1}};
-
-        for (int i = 0; i < 8; i++)
-        {
-            // If not in bounds
-            if (!(0 <= knightCells[i][0] && knightCells[i][0] < ROWS) || !(0 <= knightCells[i][1] && knightCells[i][1] < COLS))
-                continue;
-
-            Piece currPiece = this.board[knightCells[i][0]][knightCells[i][1]].getPiece();
-            if (currPiece == null)
-                continue;
-
-            if (currPiece instanceof Knight && currPiece.getColor() == color)
-                return true;
-        }
-
         return false;
     }
 
@@ -376,6 +351,32 @@ public class Board
         return false;
     }
 
+    // If knight of the given color attacks the given square
+    private boolean checkKnightsAttacks(int row, int col, int color)
+    {
+        // All possible knight positions that can attack the square
+        int knightCells[][] = {{row - 1, col - 2}, {row - 1, col + 2},
+                                {row + 1, col - 2}, {row + 1, col + 2},
+                                {row - 2, col - 1}, {row - 2, col + 1},
+                                {row + 2, col - 1}, {row + 2, col + 1}};
+
+        for (int i = 0; i < 8; i++)
+        {
+            // If not in bounds
+            if (!(0 <= knightCells[i][0] && knightCells[i][0] < ROWS) || !(0 <= knightCells[i][1] && knightCells[i][1] < COLS))
+                continue;
+
+            Piece currPiece = this.board[knightCells[i][0]][knightCells[i][1]].getPiece();
+            if (currPiece == null)
+                continue;
+
+            if (currPiece instanceof Knight && currPiece.getColor() == color)
+                return true;
+        }
+
+        return false;
+    }
+
     // If pawn of the given color attacks the given square
     private boolean checkPawnsAttacks(int row, int col, int color)
     {
@@ -414,6 +415,31 @@ public class Board
         {
             if (pieceToRightDiagonal instanceof Pawn && pieceToRightDiagonal.getColor() == color)
                 return true;
+        }
+
+        return false;
+    }
+
+    private boolean checkKingAttacks(int row, int col, int color)
+    {
+        for (int i = -1; i <= 1; i++)
+        {
+            for (int j = -1; j <= 1; j++)
+            {
+                int currRow = row + i;
+                int currCol = col + j;
+
+                // If self or not in bounds
+                if ((i == 0 && j == 0) || !(0 <= currRow && currRow < ROWS) || !(0 <= currCol && currCol < COLS))
+                    continue;
+
+                Piece currPiece = this.board[currRow][currCol].getPiece();
+                if (currPiece == null)
+                    continue;
+
+                if (currPiece instanceof King && currPiece.getColor() == color)
+                    return true;
+            }
         }
 
         return false;

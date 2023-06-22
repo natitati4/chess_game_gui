@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.*;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import chess_game_gui.app.MainComponents.*;
 import chess_game_gui.app.Pieces.*;
 
@@ -16,35 +18,45 @@ class ChessBoardPanel extends JPanel
     public static final String BLACK_STR = "BLACK";
 
     private JPanel[][] GUIBoard = new JPanel[Board.ROWS][Board.COLS];
-    private Board gameBoard = new Board();
+    private Board gameBoard;
 
     private JPanel boardPanel = new JPanel(new GridLayout(Board.ROWS, Board.COLS));
     
     // white pieces panels
-    private static final PieceLabel whitePawn = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_pawn.png")), Piece.WHITE);
-    private static final PieceLabel whiteRook = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_rook.png")), Piece.WHITE);
-    private static final PieceLabel whiteKnight = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_knight.png")), Piece.WHITE);
-    private static final PieceLabel whiteBishop = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_bishop.png")), Piece.WHITE);
-    private static final PieceLabel whiteQueen = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_queen.png")), Piece.WHITE);
-    private static final PieceLabel whiteKing = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_king.png")), Piece.WHITE);
+    private static PieceLabel whitePawn;
+    private static PieceLabel whiteRook; 
+    private static PieceLabel whiteKnight;
+    private static PieceLabel whiteBishop;
+    private static PieceLabel whiteQueen;
+    private static PieceLabel whiteKing;
 
     // black pieces panels'
-    private static final PieceLabel blackPawn = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_pawn.png")), Piece.BLACK);
-    private static final PieceLabel blackRook = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_rook.png")), Piece.BLACK);
-    private static final PieceLabel blackKnight = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_knight.png")), Piece.BLACK);
-    private static final PieceLabel blackBishop = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_bishop.png")), Piece.BLACK);
-    private static final PieceLabel blackQueen = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_queen.png")), Piece.BLACK);
-    private static final PieceLabel blackKing = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_king.png")), Piece.BLACK);
+    private static PieceLabel blackPawn;
+    private static PieceLabel blackRook;
+    private static PieceLabel blackKnight;
+    private static PieceLabel blackBishop;
+    private static PieceLabel blackQueen;
+    private static PieceLabel blackKing;
 
     private JLabel statusLabel = new JLabel(WHITE_STR);
     private boolean isWhiteTurn = true;
     private ChessCellPanel firstSelectedCell = null;
 
-    public ChessBoardPanel() 
+    private boolean isWhiteOnBottom;
+
+    public ChessBoardPanel(boolean isWhiteOnBottom) 
     {
+        this.isWhiteOnBottom = isWhiteOnBottom;
+
+        // Setup pieces according to wether white is on bottom or not
+        setupPieces();
+        gameBoard = new Board(isWhiteOnBottom);
+        King.setColorOnBottom(isWhiteOnBottom ? Game.BOTTOM_WHITE : Game.BOTTOM_BLACK);
+
         // Add listeners to all cells
         setLayout(new GridLayout(Board.ROWS, Board.COLS));
         MyMouse myMouse = new MyMouse();
+
         for (int row = 0; row < Board.ROWS; row++) 
         {
             for (int col = 0; col < Board.COLS; col++) 
@@ -130,7 +142,7 @@ class ChessBoardPanel extends JPanel
                 boardPanel.repaint();
 
                 // Get the game state (pass the other color, cause in case it's checkmate, after a move, we need to check the other color
-                int gameState = gameBoard.getGameState(isWhiteTurn ? Piece.WHITE : Piece.BLACK);
+                int gameState = gameBoard.getGameState(isWhiteOnBottom ? (isWhiteTurn ? Piece.BLACK : Piece.WHITE) : (isWhiteTurn ? Piece.WHITE : Piece.BLACK));
                 
                 // Check the game state
                 if (gameState == Board.CHECKMATE) 
@@ -149,6 +161,43 @@ class ChessBoardPanel extends JPanel
                     System.exit(0); // Terminate the application
                 }
             }
+        }
+    }
+
+    private void setupPieces()
+    {
+        if (isWhiteOnBottom)
+        {  
+            blackPawn = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_pawn.png")), Piece.WHITE);
+            blackRook = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_rook.png")), Piece.WHITE);
+            blackKnight = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_knight.png")), Piece.WHITE);
+            blackBishop = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_bishop.png")), Piece.WHITE);
+            blackQueen = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_queen.png")), Piece.WHITE);
+            blackKing = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_king.png")), Piece.WHITE);
+
+            whitePawn = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_pawn.png")), Piece.BLACK);
+            whiteRook = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_rook.png")), Piece.BLACK);
+            whiteKnight = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_knight.png")), Piece.BLACK);
+            whiteBishop = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_bishop.png")), Piece.BLACK);
+            whiteQueen = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_queen.png")), Piece.BLACK);
+            whiteKing = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_king.png")), Piece.BLACK);
+        }
+
+        else
+        {
+            whitePawn = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_pawn.png")), Piece.WHITE);
+            whiteRook = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_rook.png")), Piece.WHITE);
+            whiteKnight = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_knight.png")), Piece.WHITE);
+            whiteBishop = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_bishop.png")), Piece.WHITE);
+            whiteQueen = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_queen.png")), Piece.WHITE);
+            whiteKing = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("white_king.png")), Piece.WHITE);
+
+            blackPawn = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_pawn.png")), Piece.BLACK);
+            blackRook = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_rook.png")), Piece.BLACK);
+            blackKnight = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_knight.png")), Piece.BLACK);
+            blackBishop = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_bishop.png")), Piece.BLACK);
+            blackQueen = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_queen.png")), Piece.BLACK);
+            blackKing = new PieceLabel(new ImageIcon(ClassLoader.getSystemClassLoader().getResource("black_king.png")), Piece.BLACK);
         }
     }
 
@@ -207,18 +256,20 @@ class ChessBoardPanel extends JPanel
             King kingJustCasteled = (King)pieceJustMoved;
             int kingDestRow = destCell.getRow();
             int kingDestCol = destCell.getCol();
+            
+            int bottomColor = King.getColorOnBottom();
 
             // Short castle
             if (kingJustCasteled.hasJustShortCasteled()) 
             {
-                Rook castlingRook = (Rook)gameBoard.getCell(kingDestRow, kingDestCol - 1).getPiece();
+                Rook castlingRook = (Rook)gameBoard.getCell(kingDestRow, kingDestCol - bottomColor).getPiece();
             
                 // Remove rook from it's starting cell and put it in the correct square
-                gameBoard.setCell(kingDestRow, kingDestCol - 1, null);
-                GUIBoard[kingDestRow][kingDestCol - 1].removeAll();
+                gameBoard.setCell(kingDestRow, kingDestCol - bottomColor, null);
+                GUIBoard[kingDestRow][kingDestCol - bottomColor].removeAll();
 
-                gameBoard.setCell(kingDestRow, kingDestCol + 1, castlingRook);
-                addPiece(kingDestRow, kingDestCol + 1, pieceToLabel(castlingRook));
+                gameBoard.setCell(kingDestRow, kingDestCol + bottomColor, castlingRook);
+                addPiece(kingDestRow, kingDestCol + bottomColor, pieceToLabel(castlingRook));
 
                 kingJustCasteled.setHasJustShortCasteled(false);
             }
@@ -229,11 +280,11 @@ class ChessBoardPanel extends JPanel
                 Rook castlingRook = (Rook)gameBoard.getCell(kingDestRow, kingDestCol + 2).getPiece();
             
                 // Remove rook from it's starting cell and put it in the correct square
-                gameBoard.setCell(kingDestRow, kingDestCol + 2, null);
-                GUIBoard[kingDestRow][kingDestCol + 2].removeAll();
+                gameBoard.setCell(kingDestRow, kingDestCol + 2 * bottomColor, null);
+                GUIBoard[kingDestRow][kingDestCol + 2 * bottomColor].removeAll();
 
-                gameBoard.setCell(kingDestRow, kingDestCol - 1, castlingRook);
-                addPiece(kingDestRow, kingDestCol - 1, pieceToLabel(castlingRook));
+                gameBoard.setCell(kingDestRow, kingDestCol - bottomColor, castlingRook);
+                addPiece(kingDestRow, kingDestCol -bottomColor, pieceToLabel(castlingRook));
 
                 kingJustCasteled.setHasJustLongCasteled(false);
             }
@@ -262,8 +313,8 @@ class ChessBoardPanel extends JPanel
 
     private void handlePromotion(ChessCellPanel cellPanel, int color)
     {
-        // Handle promotion
-        int lastRowForColor = isWhiteTurn ? Board.COLS - 1 : 0; // For white it's the 8th rank, for black it's the 1st rank
+        // Handle promotion (last rank depends on which is at the top)
+        int lastRowForColor = isWhiteOnBottom ? (isWhiteTurn ? 0 : Board.COLS - 1) : (isWhiteTurn ? Board.COLS - 1 : 0);
 
         for (int i = 0; i < Board.COLS; i++)
         {
