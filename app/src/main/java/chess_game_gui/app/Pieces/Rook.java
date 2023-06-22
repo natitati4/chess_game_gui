@@ -100,7 +100,7 @@ public class Rook extends Piece
         // vertically down
         for (int i = row - 1; i >= 0; i--)
         {
-            Cell destCell = board.getCell(row, i);
+            Cell destCell = board.getCell(i, col);
             
             // If move can be made
             if (board.movePiece(start, destCell, false))
@@ -110,14 +110,14 @@ public class Rook extends Piece
         // vertically up
         for (int i = row + 1; i < Board.ROWS; i++)
         {
-            Cell destCell = board.getCell(row, i);
+            Cell destCell = board.getCell(i, col);
             
             // If move can be made
             if (board.movePiece(start, destCell, false))
                 return true;
         }
 
-        // If didn't return true, not rooks checking
+        // If didn't return true, not rook moves
         return false;
     }
 }
