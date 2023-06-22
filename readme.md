@@ -17,7 +17,6 @@ java -jar app/build/libs/app.jar
 ```
 
 # Limitations
-Currently black is at the bottom.\
 No option to draw by agreement.\
 Considers checkmate/stalemate when en passant is the only move available (this is very rare though, and quite a pain to implement lol).
 
