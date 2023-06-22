@@ -7,8 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.*;
 
-import org.apache.commons.lang3.BooleanUtils;
-
 import chess_game_gui.app.MainComponents.*;
 import chess_game_gui.app.Pieces.*;
 
@@ -322,7 +320,8 @@ class ChessBoardPanel extends JPanel
 
             if (lastRowCell.getPiece() instanceof Pawn)
             {
-                Piece promotedPiece = promotePawn(cellPanel, isWhiteTurn ? Piece.WHITE : Piece.BLACK);
+                // Color based on which color is at the bottom
+                Piece promotedPiece = promotePawn(cellPanel, isWhiteOnBottom ? (isWhiteTurn ? Piece.BLACK : Piece.WHITE) : (isWhiteTurn ? Piece.WHITE : Piece.BLACK));
                 lastRowCell.setPiece(promotedPiece);
                 break; // Break cause found promotion
             }
@@ -339,6 +338,7 @@ class ChessBoardPanel extends JPanel
         promotionDialog.setLayout(new GridLayout(2, 2));
         promotionDialog.setLocationRelativeTo(boardPanel); // Replace 'mainWindow' with your main window reference
 
+        // Images based on which color is at the bottom
         PieceLabel queenLabel = color == Piece.WHITE ? whiteQueen : blackQueen;
         PieceLabel rookLabel = color == Piece.WHITE ? whiteRook : blackRook;
         PieceLabel bishopLabel = color == Piece.WHITE ? whiteBishop : blackBishop;
